@@ -9,7 +9,8 @@ const state = {
   currentScreen: "welcome",
   answers: {},
   currentQuestionIndex: 0,
-  theme: "light"
+  theme: "light",
+  selectedJob: null
 };
 
 // --- Configuración de Voz (Web Speech API) ---
@@ -118,7 +119,9 @@ function provideHelp() {
     accessibility: "Aquí puedes elegir modos especiales como alto contraste o lectura lenta. Selecciona uno y presiona continuar.",
     upload: "En esta sección puedes completar un pequeño cuestionario sobre tus habilidades o subir tu currículum directamente.",
     analysis: "Estamos procesando tu información con inteligencia artificial para encontrar las mejores opciones para ti.",
-    results: "¡Listo! Aquí puedes ver los sectores recomendados para ti, vacantes actuales y cursos gratuitos para mejorar tu perfil."
+    results: "¡Listo! Aquí puedes ver los sectores recomendados para ti, vacantes actuales y cursos gratuitos para mejorar tu perfil.",
+    'vacancy-detail': "Aquí puedes ver los detalles completos del puesto. Lee con atención y si te interesa, presiona el botón verde para postularte.",
+    'application-success': "Tu postulación ha sido enviada. No olvides revisar tu correo electrónico en unos minutos."
   };
 
   const text = helpTexts[state.currentScreen] || "Usa el tabulador para navegar y Enter para seleccionar opciones.";
@@ -128,7 +131,6 @@ function provideHelp() {
 // --- Handlers de Eventos ---
 document.addEventListener('DOMContentLoaded', () => {
   
-  // Tema inicial
   setTheme("light");
 
   document.getElementById('light-btn')?.addEventListener('click', () => setTheme("light"));
@@ -159,7 +161,6 @@ document.addEventListener('DOMContentLoaded', () => {
       const selectMode = () => {
         state.userMode = mode;
         document.querySelectorAll('.card').forEach(c => {
-          c.classList.remove('selected');
           c.style.border = "";
         });
         el.style.border = "4px solid var(--primary-color)";
@@ -190,14 +191,33 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('btn-analyze')?.addEventListener('click', startAnalysis);
   
   document.getElementById('btn-restart')?.addEventListener('click', () => {
-    state.answers = {};
-    state.currentQuestionIndex = 0;
-    document.body.classList.remove("high-contrast");
+    resetAppState();
     goTo("welcome");
+  });
+
+  document.getElementById('btn-final-home')?.addEventListener('click', () => {
+    resetAppState();
+    goTo("welcome");
+  });
+
+  document.getElementById('btn-back-to-jobs')?.addEventListener('click', () => {
+    goTo("results");
+  });
+
+  document.getElementById('btn-confirm-application')?.addEventListener('click', () => {
+    goTo("application-success");
+    speak("¡Felicidades! Tu postulación ha sido enviada con éxito. Revisa tu correo electrónico en los próximos 5 minutos.");
   });
 
   document.getElementById('helpBtn')?.addEventListener('click', provideHelp);
 });
+
+function resetAppState() {
+  state.answers = {};
+  state.currentQuestionIndex = 0;
+  state.selectedJob = null;
+  document.body.classList.remove("high-contrast");
+}
 
 // --- Lógica de Análisis e Industria ---
 function startAnalysis() {
@@ -273,8 +293,10 @@ function showResults(sectorKey) {
       <p><strong>Empresa:</strong> ${job.company}</p>
       <p><strong>Sueldo:</strong> ${job.salary}</p>
       <p><strong>Ubicación:</strong> ${job.location}</p>
-      <button class="neumorphic" style="width: 100%; padding: 10px; margin-top: 10px;">Postularme ahora</button>
+      <button class="neumorphic btn-apply" data-job-id="${job.id}" style="width: 100%; padding: 10px; margin-top: 10px; background-color: var(--primary-color); color: white;">Postularme ahora</button>
     `;
+    
+    card.querySelector('.btn-apply').onclick = () => showJobDetail(job);
     cardsContainer.appendChild(card);
   });
 
@@ -299,5 +321,26 @@ function showResults(sectorKey) {
     trainingLinks.appendChild(link);
   });
 
-  speak(`Análisis completado. Hemos identificado tu potencial en el sector de ${sector.name}. ${sector.description}. Revisa las sugerencias para mejorar tu CV y los cursos gratuitos que seleccionamos para ti.`);
+  speak(`Análisis completado. Hemos identificado tu potencial en el sector de ${sector.name}. Revisa las vacantes y sugerencias.`);
+}
+
+function showJobDetail(job) {
+  state.selectedJob = job;
+  
+  document.getElementById('detail-title').textContent = job.title;
+  document.getElementById('detail-company').textContent = job.company;
+  document.getElementById('detail-salary').textContent = job.salary;
+  document.getElementById('detail-location').textContent = job.location;
+  document.getElementById('detail-description').textContent = job.description;
+  
+  const reqList = document.getElementById('detail-requirements');
+  reqList.innerHTML = "";
+  job.requirements.forEach(req => {
+    const li = document.createElement('li');
+    li.textContent = req;
+    reqList.appendChild(li);
+  });
+
+  goTo("vacancy-detail");
+  speak(`Detalles para ${job.title} en ${job.company}. Lee la descripción y los requisitos antes de postularte.`);
 }
