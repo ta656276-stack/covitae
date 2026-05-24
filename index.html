@@ -1,0 +1,120 @@
+<!-- ARCHIVO: index.html -->
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CV Smart Access | Accesibilidad Extrema</title>
+  <link rel="stylesheet" href="/src/styles/main.css">
+</head>
+<body>
+
+  <!-- Salto de contenido para lectores de pantalla -->
+  <a href="#main-content" class="skip-link">Ir al contenido principal</a>
+
+  <button id="helpBtn" class="help-btn neumorphic" aria-label="Ayuda por voz">❓</button>
+
+  <main id="main-content">
+
+    <!-- Pantalla 0: Bienvenida -->
+    <section id="welcome" class="screen active">
+      <h1>Bienvenido a <br>CV Smart Access</h1>
+      <p>Diseñado para que tu experiencia laboral brille.</p>
+
+      <button id="btn-voice" class="neumorphic big-btn">
+        🔊 Quiero que me guíen por voz
+      </button>
+
+      <button id="btn-accessibility" class="neumorphic big-btn">
+        ⚙️ Opciones de accesibilidad
+      </button>
+
+      <button id="btn-skip" class="neumorphic big-btn">
+        ⏩ Explorar por mi cuenta
+      </button>
+    </section>
+
+    <!-- Pantalla 1: Preferencias de Accesibilidad -->
+    <section id="accessibility" class="screen">
+      <h2>¿Cómo podemos ayudarte hoy?</h2>
+
+      <div class="neumorphic card" id="mode-visual" tabindex="0" role="button">
+        👁️ Tengo dificultades para ver (Alto contraste)
+      </div>
+
+      <div class="neumorphic card" id="mode-motor" tabindex="0" role="button">
+        🦾 Navegación por teclado simplificada
+      </div>
+
+      <div class="neumorphic card" id="mode-hearing" tabindex="0" role="button">
+        🦻 Apoyo visual (Sin voz)
+      </div>
+
+      <div class="neumorphic card" id="mode-cognitive" tabindex="0" role="button">
+        🧠 Textos simples y lectura pausada
+      </div>
+
+      <div class="neumorphic card" id="mode-elderly" tabindex="0" role="button">
+        👤 Soy mayor de 40 años
+      </div>
+
+      <button id="btn-continue-accessibility" class="neumorphic">Continuar</button>
+    </section>
+
+    <!-- Pantalla 2: Carga de Información -->
+    <section id="upload" class="screen">
+      <!-- Contenedor dinámico para cuestionario -->
+      <div id="questionnaire-container" style="display: none; width: 100%; flex-direction: column; gap: 24px;">
+        <h2 id="q-text"></h2>
+        <div id="q-options" style="display: flex; flex-direction: column; gap: 15px; width: 100%;"></div>
+      </div>
+
+      <div id="upload-content" style="display: flex; flex-direction: column; gap: 24px; width: 100%; align-items: center;">
+        <h2>Cuéntanos sobre tu trayectoria</h2>
+      <p>Puedes subir tu CV o escribir tus oficios y saberes.</p>
+
+      <label for="fileInput" style="width: 100%;">
+        <strong>Sube tu archivo (PDF o Word):</strong>
+        <input type="file" id="fileInput" class="neumorphic" style="margin-top: 10px;"/>
+      </label>
+
+      <textarea id="textExperience" placeholder="Escribe aquí tu experiencia práctica, oficios o lo que mejor sepas hacer..." class="neumorphic"></textarea>
+
+      <button id="btn-analyze" class="neumorphic">Analizar mi perfil laboral</button>
+    </section>
+
+    <!-- Pantalla 3: Proceso de Análisis -->
+    <section id="analysis" class="screen">
+      <h2>Estamos procesando tu perfil...</h2>
+      <div id="progress-container" style="width: 100%; text-align: left;">
+        <ul id="steps" style="list-style: none; padding: 0;"></ul>
+      </div>
+    </section>
+
+    <!-- Pantalla 4: Resultados -->
+    <section id="results" class="screen">
+      <h2 id="resultTitle"></h2>
+      <p id="resultMessage" style="font-size: 1.5rem; text-align: center;"></p>
+
+      <div id="job-cards-container" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; width: 100%;">
+        <!-- Las tarjetas se cargarán aquí -->
+      </div>
+
+      <div id="optimization-container" style="width: 100%; margin-top: 40px; text-align: left;">
+        <h3>💡 Sugerencias para optimizar tu perfil</h3>
+        <ul id="suggestion-list" class="neumorphic" style="padding: 20px; list-style-position: inside; border-radius: 20px;"></ul>
+      </div>
+
+      <div id="training-container" style="width: 100%; margin-top: 30px; text-align: left;">
+        <h3>🎓 Capacitación gratuita recomendada</h3>
+        <div id="training-links" style="display: flex; flex-wrap: wrap; gap: 15px;"></div>
+      </div>
+
+      <button id="btn-restart" class="neumorphic" style="margin-top: 40px; width: 100%;">Volver a empezar</button>
+    </section>
+
+  </main>
+
+  <script type="module" src="/src/js/main.js"></script>
+</body>
+</html>
