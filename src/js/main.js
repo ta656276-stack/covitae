@@ -8,7 +8,8 @@ const state = {
   voiceEnabled: false,
   currentScreen: "welcome",
   answers: {},
-  currentQuestionIndex: 0
+  currentQuestionIndex: 0,
+  theme: "light"
 };
 
 // --- Configuración de Voz (Web Speech API) ---
@@ -94,9 +95,45 @@ function saveAnswer(questionId, value) {
   }
 }
 
+// --- Gestión de Temas ---
+function setTheme(theme) {
+  state.theme = theme;
+  if (theme === "dark") {
+    document.body.classList.add("dark-mode");
+    document.getElementById("dark-btn").classList.add("active");
+    document.getElementById("light-btn").classList.remove("active");
+    speak("Modo oscuro activado.");
+  } else {
+    document.body.classList.remove("dark-mode");
+    document.getElementById("light-btn").classList.add("active");
+    document.getElementById("dark-btn").classList.remove("active");
+    speak("Modo claro activado.");
+  }
+}
+
+// --- Ayuda Dinámica ---
+function provideHelp() {
+  const helpTexts = {
+    welcome: "Bienvenido a COVITAE. Puedes elegir entre guía por voz, configurar tu accesibilidad o subir tu información directamente.",
+    accessibility: "Aquí puedes elegir modos especiales como alto contraste o lectura lenta. Selecciona uno y presiona continuar.",
+    upload: "En esta sección puedes completar un pequeño cuestionario sobre tus habilidades o subir tu currículum directamente.",
+    analysis: "Estamos procesando tu información con inteligencia artificial para encontrar las mejores opciones para ti.",
+    results: "¡Listo! Aquí puedes ver los sectores recomendados para ti, vacantes actuales y cursos gratuitos para mejorar tu perfil."
+  };
+
+  const text = helpTexts[state.currentScreen] || "Usa el tabulador para navegar y Enter para seleccionar opciones.";
+  speak(text);
+}
+
 // --- Handlers de Eventos ---
 document.addEventListener('DOMContentLoaded', () => {
   
+  // Tema inicial
+  setTheme("light");
+
+  document.getElementById('light-btn')?.addEventListener('click', () => setTheme("light"));
+  document.getElementById('dark-btn')?.addEventListener('click', () => setTheme("dark"));
+
   document.getElementById('btn-voice')?.addEventListener('click', () => {
     state.voiceEnabled = true;
     state.userMode = "VISUAL"; 
@@ -121,7 +158,10 @@ document.addEventListener('DOMContentLoaded', () => {
     if (el) {
       const selectMode = () => {
         state.userMode = mode;
-        document.querySelectorAll('.card').forEach(c => c.style.border = "");
+        document.querySelectorAll('.card').forEach(c => {
+          c.classList.remove('selected');
+          c.style.border = "";
+        });
         el.style.border = "4px solid var(--primary-color)";
 
         if (mode === "VISUAL") {
@@ -156,9 +196,7 @@ document.addEventListener('DOMContentLoaded', () => {
     goTo("welcome");
   });
 
-  document.getElementById('helpBtn')?.addEventListener('click', () => {
-    speak("Estás en CV Smart Access. Usa el tabulador para navegar y Enter para seleccionar.");
-  });
+  document.getElementById('helpBtn')?.addEventListener('click', provideHelp);
 });
 
 // --- Lógica de Análisis e Industria ---
@@ -182,14 +220,10 @@ function startAnalysis() {
     if (index >= steps.length) {
       clearInterval(interval);
       
-      // Mapeo de Industria
       let sectorKey = "GENERAL";
-      
-      // Prioridad 1: Respuestas del cuestionario
       if (state.answers.main_skill) {
         sectorKey = state.answers.main_skill;
       } 
-      // Prioridad 2: Palabras clave en el texto
       else if (textExperience.includes("maquina") || textExperience.includes("mecanic") || textExperience.includes("herramienta")) {
         sectorKey = "TECHNICAL";
       } else if (textExperience.includes("cliente") || textExperience.includes("venta") || textExperience.includes("caja")) {
@@ -229,7 +263,6 @@ function showResults(sectorKey) {
   titleEl.textContent = `Sector: ${sector.name}`;
   msgEl.textContent = sector.description;
   
-  // Renderizar Vacantes
   cardsContainer.innerHTML = "";
   sector.jobs.forEach(job => {
     const card = document.createElement("div");
@@ -245,7 +278,6 @@ function showResults(sectorKey) {
     cardsContainer.appendChild(card);
   });
 
-  // Renderizar Sugerencias
   suggestionList.innerHTML = "";
   sector.suggestions.forEach(sug => {
     const li = document.createElement("li");
@@ -254,7 +286,6 @@ function showResults(sectorKey) {
     suggestionList.appendChild(li);
   });
 
-  // Renderizar Capacitación
   trainingLinks.innerHTML = "";
   sector.training.forEach(train => {
     const link = document.createElement("a");
